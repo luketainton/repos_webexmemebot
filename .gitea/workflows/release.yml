@@ -23,26 +23,26 @@ jobs:
     secrets:
       ACTIONS_TOKEN: ${{ secrets.ACTIONS_TOKEN }}
 
-  get_release_id:
-    name: Get Release ID
-    runs-on: ubuntu-latest
-    needs: [tag, create_release]
-    outputs:
-      releaseid: ${{ steps.getid.outputs.releaseid }}
-    steps:
-      - name: Get Release ID
-        id: getid
-        run: |
-          rid=$(curl -s -X 'GET' \
-          -H 'accept: application/json' \
-          '${{ gitea.server_url }}/api/v1/repos/${{ gitea.repository }}/releases/latest' | jq -r '.id')
-          echo "releaseid=$rid" >> "$GITEA_OUTPUT"
-          echo "$rid"
+  # get_release_id:
+  #   name: Get Release ID
+  #   runs-on: ubuntu-latest
+  #   needs: create_release
+  #   outputs:
+  #     releaseid: ${{ steps.getid.outputs.releaseid }}
+  #   steps:
+  #     - name: Get Release ID
+  #       id: getid
+  #       run: |
+  #         rid=$(curl -s -X 'GET' \
+  #         -H 'accept: application/json' \
+  #         '${{ gitea.server_url }}/api/v1/repos/${{ gitea.repository }}/releases/latest' | jq -r '.id')
+  #         echo "releaseid=$rid" >> "$GITEA_OUTPUT"
+  #         echo "$rid"
 
   create_docker:
     name: Publish Docker Images
     runs-on: ubuntu-latest
-    needs: tag
+    needs: create_release
     steps:
       - name: Update Docker configuration
         continue-on-error: true

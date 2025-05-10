@@ -2,104 +2,47 @@ name: Release
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 9 * * 0"
-  issue_comment:
-    types: [created]
+    - cron: '0 9 * * 0'
 
 jobs:
-  manual_trigger:
-    name: Manual Trigger Cleanup
-    runs-on: ubuntu-latest
-    if: ${{ gitea.event_name == 'issue_comment' }}
-    steps:
-      - name: Log event metadata
-        run: |
-          echo "Issue: ${{ gitea.event.issue.number }}"
-          echo "Comment: ${{ gitea.event.comment.body }}"
-          echo "User: ${{ gitea.event.comment.user.login }}"
-
-      - name: Stop workflow if required conditions are not met
-        if: ${{ !contains(gitea.event.issue.number, '436') || !contains(gitea.event.comment.body, '/trigger-release') || !contains(gitea.event.comment.user.login, 'luke') }}
-        run: exit 1
-
-      - name: Delete issue comment
-        run: |
-          curl -X DELETE \
-            -H "Authorization: token ${{ gitea.token }}" \
-            "${{ gitea.server_url }}/api/v1/repos/${{ gitea.repository }}/issues/comments/${{ gitea.event.comment.id }}"
-
   # test:
-  #   name: Unit Test
-  #   uses: https://git.tainton.uk/public/webexmemebot/.gitea/workflows/ci.yml@main
-  #   continue-on-error: true
+  #   name: Test
+  #   uses: https://git.tainton.uk/${{ gitea.repository }}/.gitea/workflows/ci.yml@main
+
+  tag:
+    name: Tag release
+    uses: https://git.tainton.uk/actions/gha-workflows/.gitea/workflows/release-with-tag.yaml@main
 
   create_release:
     name: Create Release
+    needs: tag
+    uses: https://git.tainton.uk/actions/gha-workflows/.gitea/workflows/create-release-preexisting-tag.yaml@main
+    with:
+      tag: ${{ needs.tag.outputs.tag_name }}
+      body: ${{ needs.tag.outputs.changelog }}
+    secrets:
+      ACTIONS_TOKEN: ${{ secrets.ACTIONS_TOKEN }}
+
+  get_release_id:
+    name: Get Release ID
     runs-on: ubuntu-latest
-    # needs: test
+    needs: [tag, create_release]
     outputs:
-      release_name: ${{ steps.get_next_version.outputs.tag }}
+      releaseid: ${{ steps.getid.outputs.releaseid }}
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v4.2.2
-        with:
-          fetch-depth: 0
-
-      - name: Changes since last tag
-        id: changes
+      - name: Get Release ID
+        id: getid
         run: |
-          rm -f .changes
-          git log $(git describe --tags --abbrev=0)..HEAD --no-merges --oneline >> .changes
-          cat .changes
+          rid=$(curl -s -X 'GET' \
+          -H 'accept: application/json' \
+          '${{ gitea.server_url }}/api/v1/repos/${{ gitea.repository }}/releases/latest' | jq -r '.id')
+          echo "releaseid=$rid" >> "$GITEA_OUTPUT"
+          echo "$rid"
 
-      - name: Check for changes
-        run: |
-          if [[ -z $(grep '[^[:space:]]' .changes) ]] ; then
-            echo "changes=false"
-            echo "changes=false" >> "$GITEA_OUTPUT"
-          else
-            echo "changes=true"
-            echo "changes=true" >> "$GITEA_OUTPUT"
-          fi
-
-      - name: Cancel if no changes
-        if: steps.changes.outputs.changes == 'false'
-        run: exit 1
-
-      - name: Set server URL
-        id: set_srvurl
-        run: |
-          SRVURL=$(echo "${{ gitea.server_url }}" | sed 's/https:\/\/\(.*\)/\1/')
-          echo "srvurl=$SRVURL" >> "$GITEA_OUTPUT"
-
-      - name: Get next version
-        uses: TriPSs/conventional-changelog-action@v6
-        id: get_next_version
-        with:
-          git-url: ${{ steps.set_srvurl.outputs.srvurl }}
-          github-token: ${{ gitea.token }}
-          preset: "conventionalcommits"
-          # preset: "angular"  # This is the default
-          skip-commit: true
-          release-count: 1
-          output-file: false
-          create-summary: true
-          skip-on-empty: true
-          skip-version-file: true
-          skip-tag: true
-
-      - name: Create release
-        run: |
-          curl -s -X POST \
-            -H "Authorization: token ${{ secrets.ACTIONS_TOKEN }}" \
-            -H "accept: application/json" \
-            -H "Content-Type: application/json" \
-            -d "{\"tag_name\": \"${{ steps.get_next_version.outputs.tag }}\", \"name\": \"${{ steps.get_next_version.outputs.tag }}\", \"body\": \"${{ steps.get_next_version.outputs.changelog }}\"}" \
-            "${{ gitea.server_url }}/api/v1/repos/${{ gitea.repository }}/releases"
-
-  build_docker:
-    name: Build Docker Images
-    needs: create_release
+  create_docker:
+    name: Publish Docker Images
+    runs-on: ubuntu-latest
+    needs: tag
     steps:
       - name: Update Docker configuration
         continue-on-error: true
@@ -111,11 +54,17 @@ jobs:
           echo "DOCKER_OPTS=\"--insecure-registry ${{ vars.PACKAGES_REGISTRY_URL }}\"" >> /etc/default/docker
           echo "{\"insecure-registries\": [\"${{ vars.PACKAGES_REGISTRY_URL }}\"]}" > /etc/docker/daemon.json
 
+      - name: Get repo name
+        id: split
+        run: echo "repo=${REPO##*/}" >> "$GITEA_OUTPUT"
+        env:
+          REPO: ${{ gitea.repository }}
+
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.2.2
         with:
           fetch-depth: 0
-          ref: ${{ needs.create_release.outputs.release_name }}
+          ref: ${{ needs.tag.outputs.tag_name }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -133,21 +82,15 @@ jobs:
           registry: ghcr.io
           username: ${{ vars.GHCR_USERNAME }}
           password: ${{ secrets.GHCR_TOKEN }}
-      
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
         uses: docker/metadata-action@v5
         with:
+          tags: type=semver,pattern=v{{version}},value=${{ needs.tag.outputs.tag_name }}
           images: |
-            ghcr.io/${{ vars.GHCR_USERNAME }}/webexmemebot
+            ghcr.io/${{ vars.GHCR_USERNAME }}/${{ steps.split.outputs.repo }}
             ${{ vars.PACKAGES_REGISTRY_URL }}/${{ gitea.repository }}
-          tags: type=semver,pattern=v{{version}},value=${{ needs.create_release.outputs.release_name }}
 
       - name: Print metadata
         run: |

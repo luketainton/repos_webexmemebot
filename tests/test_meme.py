@@ -29,8 +29,4 @@ def test_error_false() -> None:
     callback.text_top = "TEST"
     callback.text_bottom = "TEST"
     result: Response = callback.execute(None, None, {"target": {"globalId": "TEST"}})
-    assert (
-        isinstance(result, Response)
-        and result.roomId == "TEST"
-        and result.files[0] == callback.meme_filename
-    )
+    assert isinstance(result, Response) and result.roomId == "TEST" and result.files[0] == callback.meme_filename

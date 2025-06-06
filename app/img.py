@@ -1,3 +1,5 @@
+"""Generates meme images using the memegen.link API."""
+
 import requests
 
 CHAR_REPLACEMENTS: list = [
@@ -17,6 +19,11 @@ CHAR_REPLACEMENTS: list = [
 
 
 def get_templates() -> list[dict]:
+    """Fetches available meme templates from the memegen.link API.
+
+    Returns:
+        list[dict]: A list of dictionaries containing meme template information.
+    """
     url: str = "https://api.memegen.link/templates"
     req: requests.Response = requests.get(url=url, timeout=10)
     req.raise_for_status()
@@ -40,6 +47,14 @@ def get_templates() -> list[dict]:
 
 
 def format_meme_string(input_string: str) -> str:
+    """Formats a string for use in a meme image URL.
+
+    Args:
+        input_string (str): The string to format.
+
+    Returns:
+        str: The formatted string suitable for meme image URLs.
+    """
     # https://memegen.link/#special-characters
     out_string: str = input_string
     for char_replacement in CHAR_REPLACEMENTS:
@@ -48,6 +63,16 @@ def format_meme_string(input_string: str) -> str:
 
 
 def generate_api_url(template: str, top_str: str, btm_str: str) -> str:
+    """Generates a meme image URL using the memegen.link API.
+
+    Args:
+        template (str): The template identifier in the format "name.ext".
+        top_str (str): The text for the top line of the meme.
+        btm_str (str): The text for the bottom line of the meme.
+
+    Returns:
+        str: The complete URL for the meme image.
+    """
     tmpl_name: str
     tmpl_ext: str
     tmpl_name, tmpl_ext = template.split(".")
@@ -55,7 +80,5 @@ def generate_api_url(template: str, top_str: str, btm_str: str) -> str:
     top_str = format_meme_string(top_str)
     btm_str = format_meme_string(btm_str)
 
-    url: str = (
-        f"https://api.memegen.link/images/{tmpl_name}/{top_str}/{btm_str}.{tmpl_ext}"
-    )
+    url: str = f"https://api.memegen.link/images/{tmpl_name}/{top_str}/{btm_str}.{tmpl_ext}"
     return url

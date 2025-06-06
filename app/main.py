@@ -1,5 +1,7 @@
 #!/usr/local/bin/python3
 
+"""Main entry point for the Webex Bot application."""
+
 from webex_bot.webex_bot import WebexBot
 
 from app import close, meme
@@ -18,6 +20,7 @@ def create_bot() -> WebexBot:
 
 
 def main() -> None:
+    """Main function to run the Webex Bot."""
     bot: WebexBot = create_bot()
     bot.add_command(meme.MakeMemeCommand())
     bot.add_command(close.ExitCommand())

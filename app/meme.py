@@ -2,10 +2,10 @@
 
 from webex_bot.models.command import Command
 from webex_bot.models.response import Response, response_from_adaptive_card
-from webexteamssdk.models.cards import (
+from webexpythonsdk.models.cards import (
     AdaptiveCard,
     Choice,
-    Choices,
+    ChoiceSet,
     Column,
     ColumnSet,
     FontSize,
@@ -13,7 +13,7 @@ from webexteamssdk.models.cards import (
     Text,
     TextBlock,
 )
-from webexteamssdk.models.cards.actions import OpenUrl, Submit
+from webexpythonsdk.models.cards.actions import OpenUrl, Submit
 
 from app import img
 
@@ -70,7 +70,7 @@ class MakeMemeCommand(Command):
                     Column(
                         width=1,
                         items=[
-                            Choices(
+                            ChoiceSet(
                                 id="meme_type",
                                 isMultiSelect=False,
                                 choices=[Choice(title=x["name"], value=x["choiceval"]) for x in TEMPLATES],

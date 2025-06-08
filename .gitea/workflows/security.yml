@@ -9,19 +9,21 @@ on:
     - cron: "@daily"
 
 jobs:
-  sonarqube:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4.2.2
+  # sonarqube:
+  #   name: SonarQube
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout repo
+  #       uses: actions/checkout@v4.2.2
 
-      - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v5.2.0
-        env:
-          SONAR_HOST_URL: ${{ secrets.SONARQUBE_HOST_URL }}
-          SONAR_TOKEN: ${{ secrets.SONARQUBE_TOKEN }}
+  #     - name: SonarQube Scan
+  #       uses: SonarSource/sonarqube-scan-action@v5.2.0
+  #       env:
+  #         SONAR_HOST_URL: ${{ secrets.SONARQUBE_HOST_URL }}
+  #         SONAR_TOKEN: ${{ secrets.SONARQUBE_TOKEN }}
 
   snyk:
+    name: Snyk
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo

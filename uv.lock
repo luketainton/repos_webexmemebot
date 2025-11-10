@@ -509,6 +509,18 @@ wheels = [
 ]
 
 [[package]]
+name = "pytest-github-actions-annotate-failures"
+version = "0.3.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pytest" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/39/d4/c54ee6a871eee4a7468e3a8c0dead28e634c0bc2110c694309dcb7563a66/pytest_github_actions_annotate_failures-0.3.0.tar.gz", hash = "sha256:d4c3177c98046c3900a7f8ddebb22ea54b9f6822201b5d3ab8fcdea51e010db7", size = 11248, upload-time = "2025-01-17T22:39:32.722Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/6d/73/7b0b15cb8605ee967b34aa1d949737ab664f94e6b0f1534e8339d9e64ab2/pytest_github_actions_annotate_failures-0.3.0-py3-none-any.whl", hash = "sha256:41ea558ba10c332c0bfc053daeee0c85187507b2034e990f21e4f7e5fef044cf", size = 6030, upload-time = "2025-01-17T22:39:31.701Z" },
+]
+
+[[package]]
 name = "pytokens"
 version = "0.3.0"
 source = { registry = "https://pypi.org/simple" }
@@ -647,6 +659,7 @@ dev = [
     { name = "pylint" },
     { name = "pylint-exit" },
     { name = "pytest" },
+    { name = "pytest-github-actions-annotate-failures" },
 ]
 
 [package.metadata]
@@ -665,6 +678,7 @@ dev = [
     { name = "pylint", specifier = ">=4.0.0,<4.1.0" },
     { name = "pylint-exit", specifier = ">=1.2.0,<2.0.0" },
     { name = "pytest", specifier = ">=9.0.0,<9.1.0" },
+    { name = "pytest-github-actions-annotate-failures", specifier = ">=0.3.0" },
 ]
 
 [[package]]

@@ -6,7 +6,7 @@ colorama==0.4.6 ; sys_platform == "win32" or platform_system == "Windows"
 coverage==7.6.10
 dill==0.3.9
 distlib==0.3.9
-filelock==3.16.1
+filelock==3.20.1
 identify==2.6.4
 iniconfig==2.0.0
 isort==5.13.2
@@ -23,7 +23,7 @@ pylint==3.2.6
 pylint-exit==1.2.0
 pytest==8.3.3
 PyYAML==6.0.2
-setuptools==75.6.0
+setuptools==78.1.1
 tomlkit==0.13.2
 virtualenv==20.28.0
 wrapt==1.17.0

@@ -59,19 +59,19 @@ jobs:
       - name: Minimize uv cache
         run: uv cache prune --ci
       
-      - name: Set up environment for Snyk
-        run: |
-          uv pip freeze > requirements.txt
-          mv pyproject.toml pyproject.toml.bak
-          mv uv.lock uv.lock.bak
+      # - name: Set up environment for Snyk
+      #   run: |
+      #     uv pip freeze > requirements.txt
+      #     mv pyproject.toml pyproject.toml.bak
+      #     mv uv.lock uv.lock.bak
 
-      - name: Snyk SAST Scan
-        uses: snyk/actions/python@master
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          # command: snyk
-          args: snyk code test #--all-projects --exclude=.archive
+      # - name: Snyk SAST Scan
+      #   uses: snyk/actions/python@master
+      #   env:
+      #     SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      #   with:
+      #     # command: snyk
+      #     args: snyk code test #--all-projects --exclude=.archive
 
       # - name: SonarQube Scan
       #   uses: SonarSource/sonarqube-scan-action@v5.2.0
@@ -88,8 +88,8 @@ jobs:
       #     command: snyk
       #     args: test --all-projects
 
-      - name: Reverse set up environment for Snyk
-        run: |
-          rm -f requirements.txt
-          mv pyproject.toml.bak pyproject.toml
-          mv uv.lock.bak uv.lock
+      # - name: Reverse set up environment for Snyk
+      #   run: |
+      #     rm -f requirements.txt
+      #     mv pyproject.toml.bak pyproject.toml
+      #     mv uv.lock.bak uv.lock

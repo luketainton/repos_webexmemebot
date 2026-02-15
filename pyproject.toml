@@ -10,7 +10,7 @@ requires-python = "<3.14,>=3.11"
 dependencies = [
     "webex-bot<1.2.1,>=1.2.0",
     "pillow<12.1.2,>=12.1.1",
-    "astroid<=4.0.3",
+    "astroid<=4.1.0",
 ]
 
 [dependency-groups]

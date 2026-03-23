@@ -570,7 +570,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "astroid", specifier = "<=4.1.1" },
+    { name = "astroid", specifier = "<=4.1.2" },
     { name = "pillow", specifier = ">=12.1.1,<12.1.2" },
     { name = "webex-bot", specifier = ">=1.2.8,<1.2.9" },
 ]

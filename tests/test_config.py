@@ -7,14 +7,13 @@ env_vars: dict = {
     "WEBEX_API_KEY": "testing",
 }
 
-
 for var, value in env_vars.items():
     os.environ[var] = value
 
 # needs to be imported AFTER environment variables are set
 from app.config import (
     config,
-)  # pylint: disable=wrong-import-position # pragma: no cover  # noqa: E402
+)  # pylint: disable=wrong-import-position  # pragma: no cover
 
 
 def test_config() -> None:

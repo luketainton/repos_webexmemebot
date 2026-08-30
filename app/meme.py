@@ -73,7 +73,10 @@ class MakeMemeCommand(Command):
                             ChoiceSet(
                                 id="meme_type",
                                 isMultiSelect=False,
-                                choices=[Choice(title=x["name"], value=x["choiceval"]) for x in TEMPLATES],
+                                choices=[
+                                    Choice(title=x["name"], value=x["choiceval"])
+                                    for x in TEMPLATES
+                                ],
                             ),
                             Text(id="text_top", placeholder="Top Text", maxLength=100),
                             Text(
@@ -136,7 +139,9 @@ class MakeMemeCallback(Command):
         if self.error:
             return None
 
-        self.meme_filename: str = img.generate_api_url(self.meme, self.text_top, self.text_bottom)
+        self.meme_filename: str = img.generate_api_url(
+            self.meme, self.text_top, self.text_bottom
+        )
         msg: Response = Response(
             attributes={
                 "roomId": activity["target"]["globalId"],

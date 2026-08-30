@@ -30,9 +30,13 @@ meme = "app.main:main"
 
 [tool.pdm.build]
 includes = []
+
 [build-system]
 requires = ["pdm-backend"]
 build-backend = "pdm.backend"
 
 [tool.black]
 line-length = 120
+
+[tool.ruff.lint]
+ignore = ["EXE001"]
